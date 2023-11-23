@@ -46,6 +46,10 @@ const userSchema = new mongoose.Schema(
       state: String,
       country: String,
     },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
     location: {
       type: {
         type: String,
@@ -89,5 +93,5 @@ userSchema.pre("save", async function (next) {
 })
 
 const User = mongoose.model("User", userSchema)
-console.log(User.findById, "sf")
+
 module.exports = User
