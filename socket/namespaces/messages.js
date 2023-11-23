@@ -1,51 +1,78 @@
 const {
   createMessage,
-  getMany,
-  MessageController,
-} = require('../../controllers/message')
-const { socketTryCatcher } = require('../../utils/controller')
-const mongoose = require('mongoose')
+  getMultipleMessages,
+  deleteMessage,
+  getMessage,
+} = require("../../controllers/message")
+const { socketTryCatcher } = require("../../utils/controller")
+const mongoose = require("mongoose")
 
 const events = {
-  new: 'new',
-  update: 'update',
-  getOne: 'getOne',
-  getMany: 'getMany',
-  messagesSeen: 'messagesSeen',
-  messagesDelivered: 'messagesDelivered',
+  new: "new",
+  getOne: "getOne",
+  getMany: "getMany",
+  deleteOne: "deleteOne",
 }
 
 const newMessageHandler = socketTryCatcher(async (_io, socket, data = {}) => {
- 
-  let newMsgData = {
-    ...data,
-    sender: socket.user._id,
-  }
-  const newMsg = await createMessage(newMsgData)
+  let newMsgData = ({
+    conversation,
+    sender,
+    isAI,
+    recipients,
+    attachments,
+    text,
+  } = data)
+  const newMsg = await createMessage({
+    conversation,
+    sender,
+    isAI,
+    recipients,
+    attachments,
+    text,
+  })
   socket.emit(events.new, newMsg)
 })
 
+const deleteMessageHandler = socketTryCatcher(
+  async (_io, socket, data = {}) => {
+    const deletedMessage = await deleteMessage({
+      messageId: data.messageId,
+      userId: socket.user._id.toString(),
+    })
+    socket.emit(events.new, newMsg)
+  }
+)
+
+const getMessageHandler = socketTryCatcher(async (_io, socket, data = {}) => {
+  socket.emit(
+    events.getOne,
+    await getMessage({
+      messageId: data.messageId,
+      userId: socket.user._id.toString(),
+    })
+  )
+})
+
+const getMultipleMessagesHandler = socketTryCatcher(
+  async (_io, socket, data = {}) => {
+    socket.emit(
+      events.getMany,
+      await getMultipleMessages({
+        conversation: data.conversation,
+        userId: socket.user._id.toString(),
+        query: {
+          page: data.page || 1,
+          limit: data.limit || 100,
+        },
+      })
+    )
+  }
+)
 
 module.exports.messageEventHandlers = {
   [events.new]: newMessageHandler,
-  [events.getOne]: socketTryCatcher(async (_io, socket, data = {}) => {
-    socket.emit(
-      events.getOne,
-      await MessageController.getDoc({
-        ...data,
-        recipients: { $in: socket.user._id } 
-      }),
-    )
-  }),
-  [events.getMany]: socketTryCatcher(async (_io, socket, data = {}) => {
-    socket.emit(
-      events.getMany,
-      await getMany({
-        ...data,
-        or: [
-          { recipients: { $in: socket.user._id } },
-        ],
-      }),
-    )
-  }),
+  [events.deleteOne]: deleteMessageHandler,
+  [events.getOne]: getMessageHandler,
+  [events.getMany]: getMultipleMessagesHandler,
 }
