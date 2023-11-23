@@ -11,18 +11,6 @@ const produceSchema = new mongoose.Schema(
       required: [true, "Please specify the produce owner"],
       ref: "User",
     },
-    location: {
-      type: {
-        type: String,
-        enum: ["Point"],
-        required: [true, "Invalid location"],
-      },
-      coordinates: {
-        type: [Number],
-        index: "2dsphere",
-        required: [true, "Invalid location"],
-      },
-    },
     region: {
       type: String,
       required: [true, "Please provide the region of your crop"],

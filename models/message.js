@@ -9,7 +9,7 @@ const messaageAttachment = new mongoose.Schema(
 
 const messageModel = new mongoose.Schema(
   {
-    conversationId: {
+    conversation: {
       type: mongoose.Schema.ObjectId,
       ref: "Conversation",
       required: [true, "A message must have a conversation id"],
