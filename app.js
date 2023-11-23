@@ -9,6 +9,7 @@ const globalErrorHandler = require("./middleware/error")
 
 const indexRouter = require("./routes/index")
 const usersRouter = require("./routes/users")
+const produceRouter = require("./routes/produce")
 
 const app = express()
 require("dotenv").config()
@@ -39,11 +40,12 @@ app.use(
     resave: true,
     saveUninitialized: false,
     store,
-    cookie: { maxAge: 1000 * 60 * 60 * 24 * 30 }
+    cookie: { maxAge: 1000 * 60 * 60 * 24 * 30 },
   })
 )
 app.use("/api/v1", indexRouter)
 app.use("/api/v1/users", usersRouter)
+app.use("/api/v1/produce", produceRouter)
 
 app.all("*", (req, _, next) => {
   next(
