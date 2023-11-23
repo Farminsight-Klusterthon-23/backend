@@ -8,9 +8,8 @@ module.exports.routeTryCatcher = function (asyncRouteHandler) {
   }
 }
 
-module.exports.sendResponse = function(req, res, next){
+module.exports.sendResponse = function (req, res, next) {
   res.json(req.response || {}).status(req.response?.status || 500)
-  next()
 }
 
 module.exports.QueryBuilder = class {

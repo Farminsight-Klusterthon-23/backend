@@ -31,6 +31,7 @@ const userSchema = new mongoose.Schema(
       required: [true, "Email is required"],
       lowercase: true,
       trim: true,
+      unique: true,
       validate: [
         (value) =>
           value.length > 0 && /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/.test(value),

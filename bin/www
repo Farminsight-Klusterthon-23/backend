@@ -1,13 +1,21 @@
 #!/usr/bin/env node
 
 const app = require("../app")
-const debug = require("debug")("roomie:server")
+const debug = require("debug")("prod-requests:server")
 const http = require("http")
+const mongoose = require("mongoose")
+// const socketServer = require("../socket.io/server")
 
 const port = normalizePort(process.env.PORT || "3000")
 app.set("port", port)
 
 const server = http.createServer(app)
+// socketServer(server)
+mongoose.connect(
+  process.env.NODE_ENV === "dev"
+    ? "mongodb://127.0.0.1:27017/farminsights"
+    : `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.whackgm.mongodb.net/product-feedback?retryWrites=true&w=majority`
+)
 
 server.listen(port)
 server.on("error", onError)
@@ -33,6 +41,7 @@ function onError(error) {
   }
 
   const bind = typeof port === "string" ? "Pipe " + port : "Port " + port
+
   switch (error.code) {
     case "EACCES":
       console.error(bind + " requires elevated privileges")
@@ -50,5 +59,6 @@ function onError(error) {
 function onListening() {
   const addr = server.address()
   const bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port
+  console.log(`Listening on ${bind}`)
   debug("Listening on " + bind)
 }
