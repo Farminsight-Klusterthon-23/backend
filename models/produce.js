@@ -35,7 +35,7 @@ const produceSchema = new mongoose.Schema(
         "grain",
         "legume",
         "vegetable",
-        "Fruit",
+        "fruit",
         "nut",
         "oilseed",
         "latex",
