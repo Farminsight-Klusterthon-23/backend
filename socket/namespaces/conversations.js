@@ -1,48 +1,48 @@
 const {
   createConversation,
   getConversation,
-  updateConversation,
   getUserConversations,
+  getMultipleConversations,
 } = require("../../controllers/conversation")
 const { socketTryCatcher } = require("../../utils/controller")
 
 const events = {
   new: "new",
-  update: "update", 
+  update: "update",
   getOne: "getOne",
   getMany: "getMany",
+  deleteOne: "deleteOne",
 }
 
 module.exports.conversationEventHandlers = {
-  [events.new]: socketTryCatcher(async (_io, socket, data = {}) => {
-    const query = {
-      creator: socket.user._id,
-      participants: [...new Set([socket.user._id.toString()])],
+  [events.new]: socketTryCatcher(async (_io, socket) => {
+    const data = {
+      participants: [socket.user._id.toString()],
+      title: "",
     }
-    const newConversation = await createConversation(query)
+    const newConversation = await createConversation(data)
     socket.emit(events.new, newConversation)
   }),
   [events.getOne]: socketTryCatcher(async (_io, socket, data = {}) => {
     const Conversation = await getConversation({
-      _id: data.conversationId,
-      participants: { $in: socket.user._id },
+      conversationId: data.conversationId,
+      userID: socket.user._id.toString(),
     })
     socket.emit(events.getOne, Conversation)
   }),
-  [events.update]: socketTryCatcher(async (_io, socket, data = {}) => {
-    const { query = {}, update } = data
-    const updConversation = await updateConversation(
-      { ...query, participants: { $in: socket.user._id } },
-      update
-    )
-    socket.emit(events.update, updConversation)
-  }),
   [events.getMany]: socketTryCatcher(async (_io, socket, data = {}) => {
-    const conversations = await getUserConversations({
+    const conversations = await getMultipleConversations({
       userId: socket.user._id.toString(),
-      page: data.page | 1,
-      limit: data.limit | 100,
+      conversationId: data.conversationId,
+      query: { page: data.page | 1, limit: data.limit | 100 },
     })
     socket.emit(events.getMany, conversations)
+  }),
+  [events.deleteOne]: socketTryCatcher(async (_io, socket, data = {}) => {
+    const conversations = await getMultipleConversations({
+      userId: socket.user._id.toString(),
+      conversationId: data.conversationId,
+    })
+    socket.emit(events.deleteOne, conversations)
   }),
 }
