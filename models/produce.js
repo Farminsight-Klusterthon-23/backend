@@ -2,16 +2,13 @@ const mongoose = require("mongoose")
 
 const produceSchema = new mongoose.Schema(
   {
-    coverImage: {
+    name: {
       type: String,
-      required: [true, "Please provide cover image"],
+      required: [true, "Please specify the produce name"],
     },
-    additionalImages: {
-      type: [String],
-    },
-    owner: {
+    user: {
       type: mongoose.Types.ObjectId,
-      required: [true, "Please specify the property owner"],
+      required: [true, "Please specify the produce owner"],
       ref: "User",
     },
     location: {

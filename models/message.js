@@ -15,9 +15,12 @@ const messageModel = new mongoose.Schema(
       required: [true, "A message must have a conversation id"],
     },
     sender: {
-      type: mongoose.Schema.ObjectId,
+      type: mongoose.Types.ObjectId,
       ref: "User",
-      required: [true, "A message must have a sender"],
+    },
+    isAI: {
+      type: Boolean,
+      default: true,
     },
     recipients: {
       type: [
@@ -29,20 +32,11 @@ const messageModel = new mongoose.Schema(
       validate: [
         function (val) {
           const setFromVal = new Set(val)
-          return setFromVal.size === val.length && val.length <= 10
+          return setFromVal.size === val.length && val.length <= 1
         },
         "Duplicate recipients or list too long",
       ],
     },
-    isDeleted: {
-      type: Boolean,
-      default: false,
-    },
-    deletedFor: [
-      {
-        type: mongoose.Schema.ObjectId,
-      },
-    ],
     attachments: {
       type: [messaageAttachment],
       validate: function (val) {
@@ -57,23 +51,6 @@ const messageModel = new mongoose.Schema(
         locale: "en",
         strength: 2,
       },
-    },
-    deletedAt: Date,
-    seen: {
-      type: Boolean,
-      default: false,
-    },
-    delivered: {
-      type: Boolean,
-      default: false,
-    },
-    quotedMessage: {
-      type: mongoose.Schema.ObjectId,
-      ref: "Message",
-    },
-    forwarded: {
-      type: Boolean,
-      default: false,
     },
   },
   {

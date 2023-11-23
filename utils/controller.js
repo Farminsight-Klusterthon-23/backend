@@ -12,6 +12,21 @@ module.exports.sendResponse = function (req, res, next) {
   res.json(req.response || {}).status(req.response?.status || 500)
 }
 
+module.exports.socketTryCatcher = (asyncFunc) => {
+  return async function (io, socket, data) {
+    try {
+      return await asyncFunc(io, socket, data)
+    } catch (err) {
+      let error = err
+      if (err.name === 'ValidationError') error = handleValidationError(err)
+      if (err.code === 11000) error = handleDuplicateKeyError(err)
+      if (err.name === 'CastError') error = handleCastError(err)
+      if (err.name === 'TypeError') error = handleTypeError(err)
+      console.log(error, err)
+      socket.emit('error', error.message)
+    }
+  }
+}
 module.exports.QueryBuilder = class {
   constructor(Model, queryObj) {
     this.Model = Model
