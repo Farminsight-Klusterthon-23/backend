@@ -31,7 +31,8 @@ const produceSchema = new mongoose.Schema(
     category: {
       type: String,
       enum: [
-        "cereal / grain",
+        "cereal",
+        "grain",
         "legume",
         "vegetable",
         "Fruit",
@@ -47,7 +48,6 @@ const produceSchema = new mongoose.Schema(
     description: {
       type: String,
       maxlength: 250,
-      minlength: 30,
       default: "",
     },
   },

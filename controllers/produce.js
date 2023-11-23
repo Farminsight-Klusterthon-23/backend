@@ -1,12 +1,5 @@
 const Produce = require("../models/produce")
 const { routeTryCatcher, QueryBuilder } = require("../utils/controller")
-const CustomError = require("../utils/error")
-const {
-  hashValue,
-  compareValueToHash,
-  signJwt,
-  validateToken,
-} = require("../utils/security")
 
 module.exports.createProduce = routeTryCatcher(async function (req, res, next) {
   const { name, description, category, region, longitude, latitude } = req.body
@@ -38,7 +31,7 @@ module.exports.updateProduce = routeTryCatcher(async function (req, res, next) {
       description,
       category,
       region,
-      location: {
+      [longitude && latitude && "location"]: {
         type: "Point",
         coordinates: [longitude, latitude],
       },
@@ -88,8 +81,11 @@ module.exports.getMultipleProduce = routeTryCatcher(async function (
 ) {
   req.query.user = req.user._id
   const ProduceQueryBuilder = new QueryBuilder(Produce, req.query)
+  const produce = await ProduceQueryBuilder.find()
   req.response = {
-    produce: await ProduceQueryBuilder.find(),
+    produce,
+    totalCount: produce.length,
+    hasMore: produce.length === (req.query.limit || 100),
     message: "Success",
     status: 200,
   }

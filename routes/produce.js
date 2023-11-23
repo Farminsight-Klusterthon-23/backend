@@ -10,7 +10,7 @@ const {
 } = require("../controllers/produce")
 const { protect } = require("../middleware/auth")
 
-router.post("/:id", protect, createProduce, sendResponse)
+router.post("/", protect, createProduce, sendResponse)
 router.put("/:id", protect, updateProduce, sendResponse)
 router.get("/:id", protect, getSingleProduce, sendResponse)
 router.delete("/:id", protect, deleteProduce, sendResponse)
