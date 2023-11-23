@@ -1,6 +1,11 @@
 const User = require("../models/user")
 const { routeTryCatcher } = require("../utils/controller")
-const { hashValue, compareValueToHash, signJwt } = require("../utils/security")
+const {
+  hashValue,
+  compareValueToHash,
+  signJwt,
+  validateToken,
+} = require("../utils/security")
 
 module.exports.signup = routeTryCatcher(async function (req, _res, next) {
   const { email, password, firstName, lastName, latitude, longitude } = req.body
@@ -24,7 +29,19 @@ module.exports.signup = routeTryCatcher(async function (req, _res, next) {
 
 module.exports.login = routeTryCatcher(async function (req, _res, next) {
   const { email, password } = req.body
-  const user = await User.findOne({ email: email.toLowerCase() })
+  let user
+  if (req.session.access_token) {
+    user = await validateToken(req.session.access_token)
+    if (user) {
+      req.response = {
+        user,
+        message: "Logged in!",
+        status: 200,
+      }
+      return next()
+    }
+  } else user = await User.findOne({ email: email.toLowerCase() })
+
   req.response = {
     message: "Invalid credentials!",
     status: 400,
@@ -32,8 +49,9 @@ module.exports.login = routeTryCatcher(async function (req, _res, next) {
   if (!user) return next()
   const isMatchingPassword = await compareValueToHash(password, user.password)
   if (!isMatchingPassword) next()
+  const token = signJwt({ _id: user._id.toString() })
+  req.session.access_token = token
   req.response = {
-    token: signJwt({ _id: user._id.toString() }),
     user,
     message: "Logged in!",
     status: 200,

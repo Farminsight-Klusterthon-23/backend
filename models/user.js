@@ -1,5 +1,5 @@
 const mongoose = require("mongoose")
-const { hashValue } = require("../utils/security")
+const bcrypt = require("bcryptjs")
 const CustomError = require("../utils/error")
 
 const userSchema = new mongoose.Schema(
@@ -70,7 +70,7 @@ const userSchema = new mongoose.Schema(
   }
 )
 
-userSchema.pre("save", function (next) {
+userSchema.pre("save", async function (next) {
   if (this.isModified("password")) {
     if (
       this.password.includes(this.firstName) ||
@@ -82,11 +82,12 @@ userSchema.pre("save", function (next) {
           "Your password cannot contain your first name, last name or email"
         )
       )
-    else this.password = hashValue(this.password)
+    const salt = await bcrypt.genSalt(10)
+    this.password = await bcrypt.hash(value, salt)
   }
   next()
 })
 
 const User = mongoose.model("User", userSchema)
-
+console.log(User.findById, "sf")
 module.exports = User
