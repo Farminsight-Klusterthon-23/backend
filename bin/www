@@ -32,9 +32,9 @@ function startServer() {
 
 mongoose
   .connect(
-    process.env.NODE_ENV === "dev"
+    process.env.NODE_ENV === "local"
       ? "mongodb://127.0.0.1:27017/farminsights"
-      : `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.whackgm.mongodb.net/product-feedback?retryWrites=true&w=majority`
+      : `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.f8gzat2.mongodb.net/${process.env.NODE_ENV}?retryWrites=true&w=majority`
   )
   .then((conn) => {
     console.log("connected to db")
