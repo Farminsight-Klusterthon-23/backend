@@ -48,9 +48,16 @@ module.exports.login = routeTryCatcher(async function (req, _res, next) {
     message: "Invalid credentials!",
     status: 400,
   }
+  console.log(user, email, isMatchingPassword, "51---")
+
   if (!user) return next()
   const isMatchingPassword = await compareValueToHash(password, user.password)
+  console.log(req.body, email, isMatchingPassword, "53")
+
   if (!isMatchingPassword) return next()
+  console.log(req.body, email, isMatchingPassword)
+  console.log(req.body, email, isMatchingPassword, "57")
+
   const token = signJwt({ _id: user._id.toString() })
   console.log(req.body, email, password)
   req.session.access_token = token
