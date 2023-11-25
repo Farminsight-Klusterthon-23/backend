@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken")
 const User = require("../models/user")
 
 module.exports.hashValue = async function (value) {
-  return  bcrypt.hash(value)
+  return  bcrypt.hash(value, 10)
 }
 module.exports.compareValueToHash = async function (value, hash) {
   return await bcrypt.compare(value, hash)

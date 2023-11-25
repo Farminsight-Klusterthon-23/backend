@@ -74,23 +74,6 @@ const userSchema = new mongoose.Schema(
   }
 )
 
-userSchema.pre("save", async function (next) {
-  if (this.isModified("password")) {
-    if (
-      this.password.includes(this.firstName) ||
-      this.password.includes(this.lastName) ||
-      this.password.includes(this.email)
-    )
-      return next(
-        new CustomError(
-          "Your password cannot contain your first name, last name or email"
-        )
-      )
-    this.password = bcrypt.hash(this.password, 10)
-  }
-  next()
-})
-
 const User = mongoose.model("User", userSchema)
 
 module.exports = User
