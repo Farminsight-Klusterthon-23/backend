@@ -1,12 +1,7 @@
 const User = require("../models/user")
 const { routeTryCatcher } = require("../utils/controller")
 const CustomError = require("../utils/error")
-const {
-  hashValue,
-  compareValueToHash,
-  signJwt,
-  validateToken,
-} = require("../utils/security")
+const { hashValue, compareValueToHash, signJwt } = require("../utils/security")
 
 module.exports.signup = routeTryCatcher(async function (req, _res, next) {
   const { email, password, firstName, lastName, latitude, longitude } = req.body
@@ -30,17 +25,6 @@ module.exports.signup = routeTryCatcher(async function (req, _res, next) {
 
 module.exports.login = routeTryCatcher(async function (req, _res, next) {
   const { email, password } = req.body
-  // if (req.session && req.session.access_token) {
-  //   user = await validateToken(req.session.access_token)
-  //   if (user) {
-  //     req.response = {
-  //       user,
-  //       message: "Logged in!",
-  //       status: 200,
-  //     }
-  //     return next()
-  //   }
-  // } else 
   const user = await User.findOne({ email: email?.toLowerCase() })
 
   console.log(req.body, email, password)
@@ -59,8 +43,7 @@ module.exports.login = routeTryCatcher(async function (req, _res, next) {
   console.log(req.body, email, isMatchingPassword, "57")
 
   const token = signJwt({ _id: user._id.toString() })
-  console.log(req.body, email, password)
-  // req.session.access_token = token
+
   req.response = {
     user,
     message: "Logged in!",
@@ -69,6 +52,7 @@ module.exports.login = routeTryCatcher(async function (req, _res, next) {
   }
   return next()
 })
+
 module.exports.logout = routeTryCatcher(async function (req, res, next) {
   if (req.session) req.session.destroy()
   req.response = {
