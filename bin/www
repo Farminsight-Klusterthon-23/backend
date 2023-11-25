@@ -37,6 +37,8 @@ mongoose
   )
   .then((conn) => {
     console.log("connected to db")
+    console.log(conn.connection.db.databaseName)
+    console.log(conn.connection.host)
     startServer()
     startSocket()
   })
