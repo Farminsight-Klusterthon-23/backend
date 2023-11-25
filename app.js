@@ -2,7 +2,7 @@ const CustomError = require("./utils/error")
 const express = require("express")
 const path = require("path")
 const session = require("express-session")
-const MongoDBStore = require("connect-mongodb-session")(session)
+// const MongoDBStore = require("connect-mongodb-session")(session)
 const cookieParser = require("cookie-parser")
 const logger = require("morgan")
 const globalErrorHandler = require("./middleware/error")
@@ -31,26 +31,27 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, "public")))
 
-var store = new MongoDBStore({
-  uri: "mongodb://localhost:27017/connect_mongodb_session_test",
-  collection: "mySessions",
-})
+// var store = new MongoDBStore({
+//   uri: "mongodb://localhost:27017/connect_mongodb_session_test",
+//   collection: "mySessions",
+// })
 
-store.on("error", function (error) {
-  console.log(error)
-})
+// store.on("error", function (error) {
+//   console.log(error)
+// })
 
-app.use(
-  session({
-    // httpOnly: true,
-    // secure: true,
-    secret: process.env.JWT_SECRET,
-    resave: true,
-    saveUninitialized: false,
-    store,
-    cookie: { maxAge: 1000 * 60 * 60 * 24 * 30 },
-  })
-)
+// app.use(
+//   session({
+//     // httpOnly: true,
+//     // secure: true,
+//     secret: process.env.JWT_SECRET,
+//     resave: true,
+//     saveUninitialized: false,
+//     store,
+//     cookie: { maxAge: 1000 * 60 * 60 * 24 * 30 },
+//   })
+// ) Remove sessions because hosting provider does not support
+
 app.use("/api/v1", indexRouter)
 app.use("/api/v1/users", usersRouter)
 app.use("/api/v1/produce", produceRouter)

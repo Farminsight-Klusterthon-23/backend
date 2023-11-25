@@ -30,18 +30,18 @@ module.exports.signup = routeTryCatcher(async function (req, _res, next) {
 
 module.exports.login = routeTryCatcher(async function (req, _res, next) {
   const { email, password } = req.body
-  let user
-  if (req.session.access_token) {
-    user = await validateToken(req.session.access_token)
-    if (user) {
-      req.response = {
-        user,
-        message: "Logged in!",
-        status: 200,
-      }
-      return next()
-    }
-  } else user = await User.findOne({ email: email?.toLowerCase() })
+  // if (req.session && req.session.access_token) {
+  //   user = await validateToken(req.session.access_token)
+  //   if (user) {
+  //     req.response = {
+  //       user,
+  //       message: "Logged in!",
+  //       status: 200,
+  //     }
+  //     return next()
+  //   }
+  // } else 
+  const user = await User.findOne({ email: email?.toLowerCase() })
 
   console.log(req.body, email, password)
   req.response = {
@@ -60,14 +60,14 @@ module.exports.login = routeTryCatcher(async function (req, _res, next) {
 
   const token = signJwt({ _id: user._id.toString() })
   console.log(req.body, email, password)
-  req.session.access_token = token
+  // req.session.access_token = token
   req.response = {
     user,
     message: "Logged in!",
     status: 200,
     token,
   }
-  next()
+  return next()
 })
 module.exports.logout = routeTryCatcher(async function (req, res, next) {
   if (req.session) req.session.destroy()

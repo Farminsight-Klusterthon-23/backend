@@ -4,7 +4,7 @@ const { validateToken } = require("../utils/security")
 
 module.exports.protect = routeTryCatcher(async function (req, _res, next) {
   let token
-  if (req.session && !req.session.access_token) {
+  if ((req.session && !req.session.access_token) || !req.session) {
     const authHeader = req.headers["Authorization"]
     if (authHeader) {
       const token = authHeader.split("Bearer ")[1]
