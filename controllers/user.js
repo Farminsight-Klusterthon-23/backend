@@ -41,8 +41,9 @@ module.exports.login = routeTryCatcher(async function (req, _res, next) {
       }
       return next()
     }
-  } else user = await User.findOne({ email: email.toLowerCase() })
+  } else user = await User.findOne({ email: email?.toLowerCase() })
 
+  console.log(req.body, email, password)
   req.response = {
     message: "Invalid credentials!",
     status: 400,
