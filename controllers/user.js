@@ -2,7 +2,6 @@ const User = require("../models/user")
 const { routeTryCatcher } = require("../utils/controller")
 const CustomError = require("../utils/error")
 const {
-  hashValue,
   compareValueToHash,
   signJwt,
   validateToken,
@@ -12,7 +11,7 @@ module.exports.signup = routeTryCatcher(async function (req, _res, next) {
   const { email, password, firstName, lastName, latitude, longitude } = req.body
   const user = new User({
     email,
-    password: await hashValue(password),
+    password,
     firstName,
     lastName,
     location: {
@@ -49,7 +48,7 @@ module.exports.login = routeTryCatcher(async function (req, _res, next) {
   }
   if (!user) return next()
   const isMatchingPassword = await compareValueToHash(password, user.password)
-  if (!isMatchingPassword) next()
+  if (!isMatchingPassword) return next()
   const token = signJwt({ _id: user._id.toString() })
   req.session.access_token = token
   req.response = {
