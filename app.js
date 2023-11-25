@@ -1,7 +1,7 @@
 const CustomError = require("./utils/error")
 const express = require("express")
 const path = require("path")
-const session = require("express-session")
+// const session = require("express-session")
 // const MongoDBStore = require("connect-mongodb-session")(session)
 const cookieParser = require("cookie-parser")
 const logger = require("morgan")
