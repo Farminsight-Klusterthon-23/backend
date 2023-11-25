@@ -48,8 +48,8 @@ module.exports.login = routeTryCatcher(async function (req, _res, next) {
     status: 400,
   }
   if (!user) return next()
-
-g  const isMatchingPassword = await compareValueToHash(password, user.password)
+  console.log(user, "da")
+  const isMatchingPassword = await compareValueToHash(password, user.password)
   if (!isMatchingPassword) return next()
   const token = signJwt({ _id: user._id.toString() })
   req.session.access_token = token
