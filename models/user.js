@@ -86,7 +86,7 @@ userSchema.pre("save", async function (next) {
           "Your password cannot contain your first name, last name or email"
         )
       )
-    this.password = bcrypt.hash(this.password)
+    this.password = bcrypt.hash(this.password, 10)
   }
   next()
 })
