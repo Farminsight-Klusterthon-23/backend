@@ -30,6 +30,7 @@ function startServer() {
   })
 }
 
+console.log(process.env.NODE_ENV, "GPO")
 mongoose
   .connect(
     process.env.NODE_ENV === "local"
