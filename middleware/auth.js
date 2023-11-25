@@ -8,7 +8,7 @@ module.exports.protect = routeTryCatcher(async function (req, _res, next) {
   if (authHeader) {
     token = authHeader.split("Bearer ")[0]
   }
-  console.log(token, "Line: 11")
+  console.log(token, "Line: 11", authHeader)
   console.log("Line: 12")
   if (!token) return next(new CustomError("Not allowed!", 403))
   user = await validateToken(token)
