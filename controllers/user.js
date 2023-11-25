@@ -48,7 +48,7 @@ module.exports.login = routeTryCatcher(async function (req, _res, next) {
     message: "Invalid credentials!",
     status: 400,
   }
-  console.log(user, email, isMatchingPassword, "51---")
+  console.log(user, email, "isMatchingPassword", "51---")
 
   if (!user) return next()
   const isMatchingPassword = await compareValueToHash(password, user.password)
