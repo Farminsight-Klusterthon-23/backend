@@ -53,10 +53,6 @@ module.exports.login = routeTryCatcher(async function (req, _res, next) {
   console.log(
     isMatchingPassword,
     "sdf",
-    await bcrypt.compare(
-      "dev1234",
-      "$2a$10$vKVaO69MIPdr7jd.OWIzc.0huDo1hWakjMZb8/Ae0pW/tUW0TjhVm"
-    )
   )
   if (!isMatchingPassword) return next()
   const token = signJwt({ _id: user._id.toString() })
