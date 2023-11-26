@@ -166,7 +166,7 @@ module.exports.generateInfoOnCrop = routeTryCatcher(async (req, res, next) => {
     return next()
   }
   const data = await getFarmProduceInfo(req.params.crop)
-  console.log(data, typeof data)
+  console.log(typeof data)
   req.response = {
     data: JSON.parse(data),
     status: 200,
