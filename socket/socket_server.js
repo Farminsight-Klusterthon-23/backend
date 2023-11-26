@@ -1,11 +1,11 @@
-const { Server } = require('socket.io')
-const { namespacesEventsHandlers } = require('./namespaces')
+const { Server } = require("socket.io")
+const { namespacesEventsHandlers } = require("./namespaces")
 
 module.exports = function startSocketServer(server) {
   const io = new Server(server, {
     cors: {
-      origin: '*',
-      methods: ['PUT', 'GET', 'POST', 'DELETE', 'OPTIONS'],
+      origin: "*",
+      methods: ["PUT", "GET", "POST", "DELETE", "OPTIONS"],
       credentials: false,
     },
   })
@@ -18,7 +18,7 @@ const socketListening = (io, socket, eventHandlers = {}) => {
     socket.on(eventName, async (req) => {
       const eventHandler = eventHandlers[eventName]
       await eventHandler(io, socket, req)
-    }),
+    })
   )
 }
 
@@ -27,12 +27,26 @@ const onConnect = (socket, connections = new Set()) => {
   return connections
 }
 
+module.exports.ioListening = (io, events) => {
+  let connections = new Set()
+  return io.on("connection", (socket) => {
+    console.log("io connected")
+    connections = onConnect(socket, connections)
+    socket.on("disconnect", () => {
+      connections.delete(socket.toString())
+    })
+    socket.onAny((event, payload) => console.log(event, payload))
+    socketListening(io, socket, events)
+  })
+}
+
 module.exports.namespaceListening = (io, namespace) => {
   let connections = new Set()
-  io.of(namespace).on('connection', (socket) => {
+  io.of(namespace).on("connection", (socket) => {
+    console.log("nsp connected")
     connections = onConnect(socket, connections)
     socket.join(socket.user._id.toString())
-    socket.on('disconnect', () => {
+    socket.on("disconnect", () => {
       connections.delete(socket.toString())
       socket.leave(socket.user._id)
     })

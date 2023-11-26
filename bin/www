@@ -7,10 +7,10 @@ const mongoose = require("mongoose")
 const startSocketServer = require("../socket/socket_server")
 const { namespaceListening } = require("../socket/socket_server")
 const { namespaces } = require("../socket/namespaces/index")
-const { authenticate } = require("../socket/middleware/auth")
+const { authenticate } = require("../middleware/auth")
 
 const server = http.createServer(app)
-const port = normalizePort(process.env.PORT || "3000")
+let port = normalizePort(process.env.PORT || "3000")
 
 function startSocket() {
   const io = startSocketServer(server)
@@ -31,17 +31,25 @@ function startServer() {
 }
 
 console.log(process.env.NODE_ENV)
-mongoose
-  .connect(
-    `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.f8gzat2.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
-  )
-  .then((conn) => {
-    console.log("connected to db")
-    console.log(conn.connection.db.databaseName)
-    console.log(conn.connection.host)
-    startServer()
-    startSocket()
-  })
+function connectDB(cb) {
+  mongoose
+    .connect(
+      `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.f8gzat2.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
+    )
+    .then((conn) => {
+      console.log("connected to db")
+      console.log(conn.connection.db.databaseName)
+      console.log(conn.connection.host)
+      cb()
+    })
+}
+
+function runApp(){
+  startServer()
+  startSocket()
+}
+
+connectDB(runApp)
 
 function normalizePort(val) {
   const port = parseInt(val, 10)
@@ -70,8 +78,8 @@ function onError(error) {
       process.exit(1)
       break
     case "EADDRINUSE":
-      console.error(bind + " is already in use")
-      process.exit(1)
+      console.error(bind + " is already in use. Retrying on " + +port++)
+      runApp()
       break
     default:
       throw error
