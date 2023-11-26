@@ -44,7 +44,7 @@ function connectDB(cb) {
     })
 }
 
-function runApp(){
+function runApp() {
   startServer()
   startSocket()
 }
