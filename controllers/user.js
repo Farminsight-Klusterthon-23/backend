@@ -15,10 +15,12 @@ module.exports.signup = routeTryCatcher(async function (req, _res, next) {
       coordinates: [longitude, latitude],
     },
   })
+  const token = signJwt({ _id: user._id.toString() })
   req.response = {
     user: await user.save(),
     message: "Account created successfully!",
     status: 200,
+    token
   }
   next()
 })
