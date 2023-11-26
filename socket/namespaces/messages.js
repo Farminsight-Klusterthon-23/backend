@@ -5,33 +5,42 @@ const {
   getMessage,
 } = require("../../controllers/message")
 const { socketTryCatcher } = require("../../utils/controller")
-const mongoose = require("mongoose")
+const { getCompletion } = require("../../OpenAI/index.js")
 
 const events = {
   new: "new",
   getOne: "getOne",
   getMany: "getMany",
   deleteOne: "deleteOne",
+  question: "question",
 }
 
 const newMessageHandler = socketTryCatcher(async (_io, socket, data = {}) => {
-  let newMsgData = ({
+  const { content, conversation } = data
+  const userId = socket.user._id.toString()
+  const previousMsgs = await getMultipleMessages({
     conversation,
-    sender,
-    isAI,
-    recipients,
-    attachments,
-    text,
-  } = data)
-  const newMsg = await createMessage({
-    conversation,
-    sender,
-    isAI,
-    recipients,
-    attachments,
-    text,
+    userId,
+    query: { sort: "-createdAt", limit: 100 },
   })
-  socket.emit(events.new, newMsg)
+  const messages = previousMsgs.map(({ role, content }) => ({ role, content }))
+
+  const aiReply = await getCompletion(messages, "json_object")
+
+  const userMsg = await createMessage({
+    conversation,
+    conversationOwner: userId,
+    role: "user",
+    content,
+  })
+
+  const aiMessage = await createMessage({
+    conversation,
+    conversationOwner: userId,
+    role: "assistant",
+    content: JSON.stringify(aiReply),
+  })
+  socket.emit(events.new, [userMsg, aiMessage])
 })
 
 const deleteMessageHandler = socketTryCatcher(
@@ -41,6 +50,19 @@ const deleteMessageHandler = socketTryCatcher(
       userId: socket.user._id.toString(),
     })
     socket.emit(events.new, newMsg)
+  }
+)
+
+const questionEventHandler = socketTryCatcher(
+  async (_io, socket, data = {}) => {
+    const { question } = data
+    const answer = await getCompletion([
+      {
+        role: "user",
+        content: `${question}`,
+      },
+    ])
+    socket.emit(events.question, { question, answer })
   }
 )
 
@@ -75,4 +97,5 @@ module.exports.messageEventHandlers = {
   [events.deleteOne]: deleteMessageHandler,
   [events.getOne]: getMessageHandler,
   [events.getMany]: getMultipleMessagesHandler,
+  [events.question]: questionEventHandler,
 }

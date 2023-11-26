@@ -1,16 +1,27 @@
 const OpenAI = require("openai")
 
 const openai = new OpenAI({
-  apiKey: "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",
+  apiKey: process.env.OPENAI_API_KEY,
 })
 
-async function main() {
-  const completion = await openai.chat.completions.create({
-    messages: [{ role: "system", content: "You are a helpful assistant." }],
-    model: "gpt-3.5-turbo",
-  })
-
-  console.log(completion.choices[0])
+module.exports.systemMessage = {
+  role: "system",
+  content:
+    "You are a Agricultural farming assistant with very vast knowledge on farming eager to help. All output should be in JSON format.",
 }
 
-main()
+const model = "gpt-3.5-turbo-1106"
+
+module.exports.getCompletion = async function (
+  messages = [module.exports.systemMessage],
+  format = "text"
+) {
+  const completion = await openai.chat.completions.create({
+    messages: messages,
+    model,
+    response_format: {
+      type: format,
+    },
+  })
+  return await completion.choices[0].message.content
+}

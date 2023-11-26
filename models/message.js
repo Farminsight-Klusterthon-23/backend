@@ -9,33 +9,18 @@ const messaageAttachment = new mongoose.Schema(
 
 const messageModel = new mongoose.Schema(
   {
+    role: {
+      type: String,
+      enum: ["user", "assistant", "system"],
+    },
     conversation: {
       type: mongoose.Schema.ObjectId,
       ref: "Conversation",
       required: [true, "A message must have a conversation id"],
     },
-    sender: {
+    conversationOwner: {
       type: mongoose.Types.ObjectId,
       ref: "User",
-    },
-    isAI: {
-      type: Boolean,
-      default: true,
-    },
-    recipients: {
-      type: [
-        {
-          type: mongoose.Schema.ObjectId,
-          ref: "User",
-        },
-      ],
-      validate: [
-        function (val) {
-          const setFromVal = new Set(val)
-          return setFromVal.size === val.length && val.length <= 1
-        },
-        "Duplicate recipients or list too long",
-      ],
     },
     attachments: {
       type: [messaageAttachment],
@@ -43,7 +28,7 @@ const messageModel = new mongoose.Schema(
         return val.length <= 10
       },
     },
-    text: {
+    content: {
       type: String,
       default: "",
       trim: true,
