@@ -16,7 +16,7 @@ app.use(
     origin: [
       "http://localhost:3001",
       "http://localhost:3000",
-      "https://farminsights.onrender.com/",
+      "https://farminsights.onrender.com",
     ],
     credentials: true,
   })
