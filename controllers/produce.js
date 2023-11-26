@@ -1,18 +1,50 @@
 const Produce = require("../models/produce")
 const { routeTryCatcher, QueryBuilder } = require("../utils/controller")
+const { getFarmProduceInfo } = require("../OpenAI/index")
 
 module.exports.createProduce = routeTryCatcher(async function (req, res, next) {
-  const { name, description, category, region, longitude, latitude } = req.body
+  const {
+    name,
+    description,
+    category,
+    averageTimeToMaturity,
+    varietesResistantToDisease,
+    majorDiseases,
+    commonPests,
+    soilPHLevels,
+    recommendedSoil,
+    soilDrainage,
+    soilType,
+    rainfallRequirement,
+    recommendedTemperature,
+    lifeCycle,
+    regionsThatFavourGrowth,
+    sunlightRequirement,
+    durationOfGrowth,
+    pestControl,
+    specialNoteOnHarvest,
+  } = req.body
   const produce = new Produce({
     name,
     description,
     category,
-    region,
-    location: {
-      type: "Point",
-      coordinates: [longitude, latitude],
-    },
     user: req.user._id,
+    averageTimeToMaturity,
+    varietesResistantToDisease,
+    majorDiseases,
+    commonPests,
+    soilPHLevels,
+    recommendedSoil,
+    soilDrainage,
+    soilType,
+    rainfallRequirement,
+    recommendedTemperature,
+    lifeCycle,
+    regionsThatFavourGrowth,
+    sunlightRequirement,
+    durationOfGrowth,
+    pestControl,
+    specialNoteOnHarvest,
   })
   req.response = {
     produce: await produce.save(),
@@ -23,7 +55,28 @@ module.exports.createProduce = routeTryCatcher(async function (req, res, next) {
 })
 
 module.exports.updateProduce = routeTryCatcher(async function (req, res, next) {
-  const { name, description, category, region, longitude, latitude } = req.body
+  const {
+    name,
+    description,
+    category,
+    region,
+    averageTimeToMaturity,
+    varietesResistantToDisease,
+    majorDiseases,
+    commonPests,
+    soilPHLevels,
+    recommendedSoil,
+    soilDrainage,
+    soilType,
+    rainfallRequirement,
+    recommendedTemperature,
+    lifeCycle,
+    regionsThatFavourGrowth,
+    sunlightRequirement,
+    durationOfGrowth,
+    pestControl,
+    specialNoteOnHarvest,
+  } = req.body
   const produce = await Produce.findOneAndUpdate(
     { _id: req.params.id, user: req.user._id },
     {
@@ -31,10 +84,22 @@ module.exports.updateProduce = routeTryCatcher(async function (req, res, next) {
       description,
       category,
       region,
-      [longitude && latitude && "location"]: {
-        type: "Point",
-        coordinates: [longitude, latitude],
-      },
+      averageTimeToMaturity,
+      varietesResistantToDisease,
+      majorDiseases,
+      commonPests,
+      soilPHLevels,
+      recommendedSoil,
+      soilDrainage,
+      soilType,
+      rainfallRequirement,
+      recommendedTemperature,
+      lifeCycle,
+      regionsThatFavourGrowth,
+      sunlightRequirement,
+      durationOfGrowth,
+      pestControl,
+      specialNoteOnHarvest,
     },
     {
       new: true,
@@ -90,4 +155,22 @@ module.exports.getMultipleProduce = routeTryCatcher(async function (
     status: 200,
   }
   next()
+})
+
+module.exports.generateInfoOnCrop = routeTryCatcher(async (req, res, next) => {
+  if (req.params.crop?.length === 0) {
+    req.response = {
+      message: "Please provide a crop",
+      status: 400,
+    }
+    return next()
+  }
+  const data = await getFarmProduceInfo(req.params.crop)
+  console.log(data, typeof data)
+  req.response = {
+    data: JSON.parse(data),
+    status: 200,
+    message: "Success!",
+  }
+  return next()
 })

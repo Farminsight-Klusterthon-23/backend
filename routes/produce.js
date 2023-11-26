@@ -7,9 +7,11 @@ const {
   getSingleProduce,
   getMultipleProduce,
   deleteProduce,
+  generateInfoOnCrop,
 } = require("../controllers/produce")
 const { protect } = require("../middleware/auth")
 
+router.get("/crops/:crop", generateInfoOnCrop, sendResponse)
 router.post("/", protect, createProduce, sendResponse)
 router.put("/:id", protect, updateProduce, sendResponse)
 router.get("/:id", protect, getSingleProduce, sendResponse)
