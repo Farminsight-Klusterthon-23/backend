@@ -150,6 +150,7 @@ module.exports.getMultipleProduce = routeTryCatcher(async function (
   req.response = {
     produce,
     totalCount: produce.length,
+    page: req.query.page || 1,
     hasMore: produce.length === (req.query.limit || 100),
     message: "Success",
     status: 200,
